@@ -1,0 +1,19 @@
+[Unit]
+Description=ZooKeeper
+After=network.target
+Wants=network.target
+
+[Service]
+Type=forking
+ExecStart={{ zookeeper_dir }}/bin/zkServer.sh start
+ExecStop={{ zookeeper_dir }}/bin/zkServer.sh stop
+ExecReload={{ zookeeper_dir }}/bin/zkServer.sh restart
+User={{ app_user_group }}
+Group={{ app_user_group }}
+LimitNOFILE=65536
+TimeoutSec=300
+EnvironmentFile=/etc/systemd/system/zookeeper.service.conf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

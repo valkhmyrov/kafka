@@ -1,8 +1,8 @@
 ---
-- name: restart services
+- name: restart zookeeper
   become: yes
   become_user: root
   service:
-    name: postgresql
-    state: '{{ postgresql_restarted_state }}'
+    name: zookeeper
+    state: restarted
     daemon_reload: yes

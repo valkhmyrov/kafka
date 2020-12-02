@@ -1,0 +1,32 @@
+---
+
+- name: Installing Java if it absent.
+  package:
+    name: "{{ java_packet }}"
+    state: present
+
+- name: Getting JAVA_HOME
+  shell: "grep 'java-{{java_version}}-openjdk.*/bin/java' /var/lib/alternatives/java | sed 's/\\/bin\\/java//'"
+  register: java_home
+
+- name: Setting JAVA_HOME environment variables.
+  template:
+    src: java.sh.j2
+    dest: /etc/profile.d/java.sh
+    mode: 0644
+
+- name: Creating application user
+  user:
+    name: '{{ app_user_group }}'
+    #group: '{{ app_user_group }}'
+    state: present
+    createhome: no
+
+- name: Creating directories if it does not exists.
+  file:
+    path: "{{ item }}"
+    owner: "{{ app_user_group }}"
+    group: "{{ app_user_group }}"
+    state: directory
+    mode: 0755
+  loop: "{{ app_dirs|flatten(levels=1) }}"

@@ -1,0 +1,12 @@
+JAVA_HOME={{java_home.stdout_lines[0]}}
+SERVER_JVMFLAGS=\
+ -Djsse.SSLEngine.acceptLargeFragments=true \
+ -Djdk.tls.rejectClientInitiatedRenegotiation=true \
+ -Djsse.enableMFLNExtension=false \
+{% if prom_agent_enable is defined and prom_agent_enable %}
+ -javaagent:{{prom_agent_dir}}/jmx_prometheus_javaagent-{{prom_agent_version}}.jar={{prom_agent_port}}:{{prom_agent_dir}}/{{prom_agent_conf}} \
+{% endif %}
+
+
+
+ZOO_LOG_DIR={{zookeeper_log}}

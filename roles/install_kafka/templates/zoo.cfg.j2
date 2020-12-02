@@ -1,0 +1,72 @@
+tickTime={{ tick_time }}
+dataDir={{ zookeepr_data }}
+dataLogDir={{ zookeeper_log }}
+{% if zk_ssl_enable is defined and zk_ssl_enable %}
+##########Start Security block##########
+#ssl.client.enable=true
+serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
+clientCnxnFactory=org.apache.zookeeper.NettyClientCnxnFactory
+
+secureClientPort={{ client_port }}
+client.portUnification=false
+
+ssl.protocol=TLSv1.3
+ssl.enabledProtocols=TLSv1.2,TLSv1.3
+ssl.ciphersuites=TLS_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256
+ssl.clientAuth=need
+ssl.crl=true
+
+#skipACL=false
+#set.acl=true
+skipACL=true
+
+ssl.keyStore.type=PKCS12
+ssl.keyStore.location={{zk_ssl_keystore_location}}
+ssl.keyStore.password={{zk_ssl_keystore_password}}
+ssl.trustStore.type=PKCS12
+ssl.trustStore.location={{zk_ssl_truststore_location}}
+ssl.trustStore.password={{zk_ssl_truststore_password}}
+##########end Security block##########
+{% else %}
+clientPort={{ client_port }}
+{% endif %}
+
+{% if zk_quorum_ssl_enable is defined and zk_quorum_ssl_enable %}
+##########Start Quorum Security block##########
+sslQuorum=true
+
+ssl.quorum.protocol=TLSv1.3
+ssl.quorum.enabledProtocols=TLSv1.2,TLSv1.3
+ssl.quorum.ciphersuites=TLS_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256
+ssl.quorum.clientAuth=need
+ssl.quorum.crl=true
+
+ssl.quorum.keyStore.type=PKCS12
+ssl.quorum.keyStore.location={{zk_quorum_ssl_keystore_location}}
+ssl.quorum.keyStore.password={{zk_quorum_ssl_keystore_password}}
+ssl.quorum.trustStore.type=PKCS12
+ssl.quorum.trustStore.location={{zk_quorum_ssl_truststore_location}}
+ssl.quorum.trustStore.password={{zk_quorum_ssl_truststore_password}}
+##########end Quorum Security block##########
+{% endif %}
+
+##########Start Administrators block##########
+
+#X509AuthenticationProvider.superUser=User:uid=VTB208695,CN=d0*.corp.dev.vtb,CN=vm*.corp.dev.vtb,CN=k10*.vtb24.ru,CN=vm*.vtb24.ru
+
+#authProvider.x509=org.apache.zookeeper.server.auth.X509AuthenticationProvider
+
+##########End Administrators block##########
+
+initLimit={{ init_limit }}
+syncLimit={{ sync_limit }}
+maxClientCnxns={{ zookeeper_max_client_connections }}
+
+{% if zookeeper_autopurge_purgeInterval > 0 %}
+autopurge.purgeInterval={{ zookeeper_autopurge_purgeInterval }}
+autopurge.snapRetainCount={{ zookeeper_autopurge_snapRetainCount }}
+{% endif %}
+
+{% for server in groups['kafka'] %}
+server.{{loop.index}}={{server}}:{{zookeeper_cluster_ports}}
+{% endfor %}
