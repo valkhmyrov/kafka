@@ -1,0 +1,5 @@
+---
+
+# Install JAVA
+- include_tasks: install_java.yml
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'

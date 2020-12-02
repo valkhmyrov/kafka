@@ -1,0 +1,90 @@
+---
+
+java_version: "11"
+java_packet: "java-{{java_version}}-openjdk-headless"
+
+
+
+
+
+
+
+postgresql_additional_packets:
+  - postgresql-contrib
+
+postgresql_python_library: python3-psycopg2
+
+postgresql_data_dir: /pg_data/data
+postgresql_backup_dir: /pg_backup
+postgresql_wal_dir: /pg_walarchive
+postgresql_home_dir: "{{ postgresql_data_dir | regex_replace('/\\w+$', '') }}"
+postgresql_dirs:
+  - '{{ postgresql_home_dir }}'
+  - '{{ postgresql_data_dir }}'
+  - '{{ postgresql_backup_dir }}'
+  - '{{ postgresql_wal_dir }}'
+
+postgresql_user: postgres
+postgresql_group: postgres
+
+# restarted or reloaded
+postgresql_restarted_state: 'restarted'
+postgresql_service_state: started
+postgresql_service_enabled: true
+
+# Global configuration options that will be set in postgresql.conf.
+# Max connections
+max_connections: 100
+# wal_keep_segments: work db - 512, test db - 8
+wal_keep_segments: 8
+postgresql_global_config_options:
+  - option: listen_addresses
+    value: '*'
+  - option: max_connections
+    value: '{{ max_connections }}'
+  - option: shared_buffers
+    value: '{{ (ansible_memtotal_mb / 4) | int }}MB'
+  - option: work_mem
+    value: '16MB'
+  - option: maintenance_work_mem
+    value: '128MB'
+  #- option: effective_io_concurrency
+  #  value: '200'
+  - option: max_wal_size
+    value: '6GB'
+  - option: wal_keep_segments
+    value: '{{ wal_keep_segments }}'
+  - option: log_line_prefix
+    value: '%t [%p]: db=%d,user=%u,app=%a,client=%h'
+  - option: autovacuum_vacuum_scale_factor
+    value: 0.05
+  - option: autovacuum_analyze_scale_factor
+    value: 0.01
+  - option: default_transaction_isolation
+    value: 'repeatable read'
+  - option: shared_preload_libraries
+    value: 'pg_stat_statements'
+
+postgresql_databases: []
+# - name: Required
+#   lc_collate: 'en_US.UTF-8'
+#   lc_ctype: 'en_US.UTF-8'
+#   encoding: 'UTF-8'
+#   template: 'template0'
+#   login_user: '{{ postgresql_user }}'
+#   owner: '{{ postgresql_user }}'
+#   state: 'present'
+
+postgresql_users: []
+# - name: Required
+#   password:
+#   encrypted: Please not set! Default yes
+#   priv: For db: 'CREATE', 'CONNECT', 'TEMPORARY', 'TEMP', 'ALL'. Example 'CREATE/CONNECT'
+#         Tor table: 'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES', 'TRIGGER', 'ALL'. Example 'table:SELECT'
+#         Mixed example 'CONNECT/CREATE/table1:SELECT/table2:INSERT'
+#   role_attr_flags: Values [NO]SUPERUSER, [NO]CREATEROLE, [NO]CREATEDB, [NO]INHERIT, [NO]LOGIN, [NO]REPLICATION, [NO]BYPASSRLS
+#                    Default NOSUPERUSER, NOCREATEROLE, NOCREATEDB, INHERIT, LOGIN, NOREPLICATION, NOBYPASSRLS
+#                    Example [NO]SUPERUSER,CREATEDB
+#   db: 
+#   login_user: '{{ postgresql_user }}'
+#   state: 'present'

@@ -1,0 +1,8 @@
+---
+- name: restart services
+  become: yes
+  become_user: root
+  service:
+    name: postgresql
+    state: '{{ postgresql_restarted_state }}'
+    daemon_reload: yes
