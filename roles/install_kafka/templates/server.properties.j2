@@ -1,0 +1,125 @@
+{% macro get_id() %}
+{% for node in groups['kafka'] %}
+{% if node == inventory_hostname %}
+{{ loop.index }}
+{% endif %}
+{% endfor %}
+{% endmacro %}
+
+
+broker.id={{ get_id() }}
+broker.rack=RACK1
+zookeeper.connect={{ zookeeper_instances }}
+
+
+{% if kafka_ssl_enable is defined and kafka_ssl_enable %}
+listeners=SSL://{{ ansible_fqdn }}:9092
+
+#ssl.protocol=TLSv1.3
+#ssl.protocol=TLSv1.2
+#ssl.enabled.protocols=TLSv1.2,TLSv1.3
+#ssl.cipher.suites=TLS_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+security.inter.broker.protocol=SSL
+ssl.client.auth=required
+
+ssl.keystore.type=PKCS12
+ssl.keystore.location={{kafka_ssl_keystore_location}}
+ssl.keystore.password={{kafka_ssl_keystore_password}}
+ssl.key.password={{ssl_key_password}}
+
+ssl.truststore.type=PKCS12
+ssl.truststore.location={{kafka_ssl_truststore_location}}
+ssl.truststore.password={{kafka_ssl_truststore_password}}
+
+#authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
+{% if kafka.plugins.kafka_cef_adapter is defined %}
+authorizer.class.name=ru.vtb.integration.kafka.intercept.DelegatingAuthorizer
+{% else %}
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+{% endif %}
+
+ssl.principal.mapping.rules=RULE:^.*[Uu][Ii][Dd]=([a-zA-Z0-9_@\\-\\.]*).*$/$1/L,DEFAULT
+super.users={{kafka_superusers}}
+allow.everyone.if.no.acl.found=false
+
+# Old stuff
+#advertised.listeners=SSL://{{ ansible_fqdn }}:9092
+#listener.security.protocol.map=SSL:SSL
+#security.protocol=SSL
+
+{% else %}
+listeners=INT://:9192,EXT://0.0.0.0:9092
+listener.security.protocol.map=INT:PLAINTEXT,EXT:PLAINTEXT
+inter.broker.listener.name=INT
+advertised.listeners=INT://:9192,EXT://{{ ansible_fqdn }}:9092
+{% endif %}
+
+{% if cruisecontrol_enable is defined and cruisecontrol_enable %}
+cruise.control.metrics.reporter.bootstrap.servers={{ kafka_instances }}
+metric.reporters=com.linkedin.kafka.cruisecontrol.metricsreporter.CruiseControlMetricsReporter
+{% if kafka_ssl_enable is defined and kafka_ssl_enable %}
+cruise.control.metrics.reporter.security.protocol=SSL
+cruise.control.metrics.reporter.ssl.truststore.location={{kafka_ssl_truststore_location}}
+cruise.control.metrics.reporter.ssl.truststore.password={{kafka_ssl_truststore_password}}
+cruise.control.metrics.reporter.ssl.keystore.location={{kafka_ssl_keystore_location}}
+cruise.control.metrics.reporter.ssl.keystore.password={{kafka_ssl_keystore_password}}
+cruise.control.metrics.reporter.ssl.key.password={{ssl_key_password}}
+{% endif %}
+{% endif %}
+
+num.network.threads=3
+num.io.threads=8
+background.threads=10
+num.recovery.threads.per.data.dir=4
+num.replica.fetchers=1
+
+socket.send.buffer.bytes=102400
+socket.receive.buffer.bytes=102400
+socket.request.max.bytes=104857600
+queued.max.requests=500
+
+log.dirs={{ kafka_log_dirs }}
+{% if kafka_log_retention_hours is defined %}
+log.retention.hours={{kafka_log_retention_hours}}
+{% else %}
+log.retention.minutes={{kafka_log_retention_minutes | default(600) }}
+{% endif %}
+{% if kafka_log_retention_bytes is defined %}
+log.retention.bytes={{kafka_log_retention_bytes}}
+{% endif %}
+log.segment.bytes=1073741824
+log.retention.check.interval.ms=300000
+log.cleaner.enable=true
+
+auto.create.topics.enable=false
+delete.topic.enable=true
+num.partitions=3
+
+min.insync.replicas={{ min_insync_replicas }}
+transaction.state.log.min.isr=2
+auto.leader.rebalance.enable=true
+leader.imbalance.check.interval.seconds=60
+
+default.replication.factor={{ kafka_default_replication_factor }}
+transaction.state.log.replication.factor={{ consumer_offsets_replication_factor }}
+offsets.topic.replication.factor={{ transaction_state_log_replication_factor }}
+offsets.topic.num.partitions=48
+
+zookeeper.connection.timeout.ms=6000
+replica.lag.time.max.ms=10000
+group.initial.rebalance.delay.ms=3000
+
+{% if zk_ssl_enable is defined and zk_ssl_enable and false %}
+zookeeper.ssl.client.enable=true
+zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
+zookeeper.ssl.keyStore.location={{ kafka_ssl_keystore_location}}
+zookeeper.ssl.keyStore.password={{kafka_ssl_keystore_password}}
+zookeeper.ssl.trustStore.location={{ kafka_ssl_truststore_location}}
+zookeeper.ssl.trustStore.password={{kafka_ssl_truststore_password}}
+zookeeper.ssl.keyStore.type=PKCS12
+zookeeper.ssl.trustStore.type=PKCS12
+
+zookeeper.client.secure=true
+zookeeper.ssl.protocol=TLSv1.3
+zookeeper.ssl.enabledProtocols=TLSv1.2,TLSv1.3
+{% endif %}

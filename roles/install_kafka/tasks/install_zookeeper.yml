@@ -10,12 +10,10 @@
 
 - name: Download dist
   get_url:
-    url: https://downloads.apache.org/zookeeper/zookeeper-3.5.8/apache-zookeeper-3.5.8-bin.tar.gz
+    #url: https://downloads.apache.org/zookeeper/zookeeper-3.5.8/apache-zookeeper-3.5.8-bin.tar.gz
+    url: "https://downloads.apache.org/zookeeper/zookeeper-{{zookeeper_version}}/{{zookeeper_package}}"
     dest: "{{ distributes_dir }}"
     mode: '0755'
-  #delegate_to: localhost
-  #run_once: true
-  #ignore_errors: true
 
 - name: Unpacking Zookeeper
   unarchive:
@@ -29,7 +27,7 @@
 
 - name: Updating log4j.properties
   template:
-    src: "log4j.properties.j2"
+    src: "zookeeper-log4j.properties.j2"
     dest: "{{ zookeeper_dir }}/conf/log4j.properties"
     group: "{{ app_user_group }}"
     owner: "{{ app_user_group }}"

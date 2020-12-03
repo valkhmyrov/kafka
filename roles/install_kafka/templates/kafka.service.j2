@@ -1,0 +1,18 @@
+[Unit]
+Description=Apache Kafka
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+SuccessExitStatus=143
+ExecStart={{ kafka_dir }}/bin/kafka-server-start.sh {{ kafka_dir }}/config/server.properties
+ExecStop={{ kafka_dir }}/bin/kafka-server-stop.sh
+User={{ app_user_group }}
+Group={{ app_user_group }}
+LimitNOFILE=65536
+EnvironmentFile=/etc/systemd/system/kafka.service.conf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

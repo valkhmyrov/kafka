@@ -1,0 +1,25 @@
+JAVA_HOME={{java_home.stdout_lines[0]}}
+KAFKA_OPTS=\
+ -Djdk.tls.rejectClientInitiatedRenegotiation=true \
+ -Djsse.enableMFLNExtension=false \
+ -XX:+UseAES \
+ -Djdk.tls.server.protocols=TLSv1.3,TLSv1.2 \
+ -Djdk.tls.server.cipherSuites=TLS_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 \
+{% if zk_ssl_enable is defined and zk_ssl_enable %}
+ -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty \
+ -Dzookeeper.client.secure=true \
+ -Dzookeeper.ssl.keyStore.location={{ kafka_ssl_keystore_location }} \
+ -Dzookeeper.ssl.keyStore.password={{ kafka_ssl_keystore_password }} \
+ -Dzookeeper.ssl.trustStore.location={{ kafka_ssl_truststore_location }} \
+ -Dzookeeper.ssl.trustStore.password={{ kafka_ssl_truststore_password }} \
+ -Dzookeeper.ssl.keyStore.type=PKCS12 \
+ -Dzookeeper.ssl.trustStore.type=PKCS12 \
+ -Dzookeeper.ssl.protocol=TLSv1.3 \
+ -Dzookeeper.ssl.enabledProtocols=TLSv1.2,TLSv1.3 \
+ -Dzookeeper.ssl.client.enable=true \
+{% endif %}
+
+# -Djsse.SSLEngine.acceptLargeFragments=true \
+
+#JMX_PORT=1979
+#KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.ssl.need.client.auth=true -Dcom.sun.management.jmxremote.registry.ssl=true -Dcom.sun.management.jmxremote.authenticate=false"

@@ -5,25 +5,36 @@ java_packet: "java-{{java_version}}-openjdk-headless"
 
 zookeeper_version: 3.5.8
 zookeeper_package: "apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz"
-zookeeper_id: 1
-#zookeeper_url: "http://downloads.apache.org/zookeeper/zookeeper-{{zookeeper_version}}/{{ zookeeper_package }}"
+kafka_version: 2.4.1
+kafka_scala_version: 2.13
+kafka_package: kafka_{{ kafka_scala_version }}-{{ kafka_version }}.tgz
+
 
 app_dir: /app
 distributes_dir: "{{app_dir}}/distrib"
 zookeepr_data: "{{ app_dir }}/data/zookeeper"
 zookeeper_log: "{{ app_dir }}/log/zookeeper"
 zookeeper_dir: "{{app_dir}}/zookeeper"
+kafka_var_log: "{{ app_dir }}/log/kafka"
+kafka_dir: "{{ app_dir }}/kafka"
+kafka_log_dirs: "{{ app_dir }}/data/kafka"
+kafka_lib_dir: "{{ kafka_dir }}/libs"
 app_dirs:
   - '{{ app_dir }}'
   - '{{ distributes_dir }}'
   - '{{ zookeepr_data }}'
   - '{{ zookeeper_log }}'
   - '{{ zookeeper_dir }}'
+  - '{{ kafka_var_log }}'
+  - '{{ kafka_dir }}'
+  - '{{ kafka_log_dirs }}'
+  - '{{ kafka_lib_dir }}'
 
 
 app_user_group: kafka
 
 # Zookeeper variables
+zookeeper_id: 1
 tick_time: 2000
 client_port: 2181
 init_limit: 5
@@ -36,3 +47,14 @@ zookeeper_cluster_election_port: 3888
 zookeeper_cluster_ports: "{{ zookeeper_cluster_followers_port }}:{{ zookeeper_cluster_election_port }}"
 zk_ssl_enable: False
 zk_quorum_ssl_enable: False
+
+# Kafka variables
+kafka_listener_port: 9092
+min_insync_replicas: 1
+kafka_default_replication_factor: 1
+consumer_offsets_replication_factor: 1
+transaction_state_log_replication_factor: 1
+kafka_ssl_enable: False
+cruisecontrol_enable: False
+zookeeper_instances: "{% for node in groups['kafka'] %}{{ node }}:{{ client_port | default('2181') }}{% if not loop.last %},{% endif %}{% endfor %}"
+kafka_instances: "{% for node in groups['kafka'] %}{{ node }}:{{kafka_listener_port}}{% if not loop.last %},{% endif %}{% endfor %}"
