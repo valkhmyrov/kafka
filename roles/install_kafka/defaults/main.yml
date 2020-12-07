@@ -1,12 +1,12 @@
 ---
 
-java_version: 11
+java_version: "{{ '11' if ( kafka_version == '2.4.1')}}"
 java_packet: "java-{{java_version}}-openjdk-headless"
 
-zookeeper_version: 3.5.8
+zookeeper_version: "{{ '3.5.8' if ( kafka_version == '2.4.1')}}"
 zookeeper_package: "apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz"
 kafka_version: 2.4.1
-kafka_scala_version: 2.13
+kafka_scala_version: "{{ '2.13' if ( kafka_version == '2.4.1')}}"
 kafka_package: kafka_{{ kafka_scala_version }}-{{ kafka_version }}.tgz
 
 
