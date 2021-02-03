@@ -1,5 +1,14 @@
 ---
 
+- name: Creating directories if it does not exists.
+  file:
+    path: "{{ item }}"
+    owner: "{{ app_user_group }}"
+    group: "{{ app_user_group }}"
+    state: directory
+    mode: 0755
+  loop: "{{ app_dirs_zookeeper|flatten(levels=1) }}"
+
 - name: Setting dir for pid files
   copy:
     src: "zookeeper.conf"
@@ -10,10 +19,10 @@
 
 - name: Download dist
   get_url:
-    #url: https://downloads.apache.org/zookeeper/zookeeper-3.5.8/apache-zookeeper-3.5.8-bin.tar.gz
-    url: "https://downloads.apache.org/zookeeper/zookeeper-{{zookeeper_version}}/{{zookeeper_package}}"
+    url: "https://archive.apache.org/dist/zookeeper/zookeeper-{{zookeeper_version}}/{{zookeeper_package}}"
     dest: "{{ distributes_dir }}"
     mode: '0755'
+    checksum: "{{ zookeeper_package_checksum }}"
 
 - name: Unpacking Zookeeper
   unarchive:
@@ -35,7 +44,7 @@
 - name: Creating myid file.
   template:
     src: "myid.j2"
-    dest: "{{ zookeepr_data }}/myid"
+    dest: "{{ zookeeper_data }}/myid"
     group: "{{ app_user_group }}"
     owner: "{{ app_user_group }}"
 

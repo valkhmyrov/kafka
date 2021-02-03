@@ -6,8 +6,8 @@
 
 # Install Zookeeper
 - include_tasks: install_zookeeper.yml
-  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7' and 'zookeeper' in group_names
 
 # Install Kafka
 - include_tasks: install_kafka.yml
-  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7' and 'kafka' in group_names

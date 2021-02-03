@@ -1,5 +1,5 @@
 tickTime={{ tick_time }}
-dataDir={{ zookeepr_data }}
+dataDir={{ zookeeper_data }}
 dataLogDir={{ zookeeper_log }}
 {% if zk_ssl_enable is defined and zk_ssl_enable %}
 ##########Start Security block##########
@@ -67,6 +67,6 @@ autopurge.purgeInterval={{ zookeeper_autopurge_purgeInterval }}
 autopurge.snapRetainCount={{ zookeeper_autopurge_snapRetainCount }}
 {% endif %}
 
-{% for server in groups['kafka'] %}
+{% for server in groups['zookeeper'] %}
 server.{{loop.index}}={{server}}:{{zookeeper_cluster_ports}}
 {% endfor %}

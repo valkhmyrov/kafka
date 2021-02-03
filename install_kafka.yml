@@ -1,4 +1,4 @@
-- hosts: kafka
+- hosts: all
   become: yes
   roles:
     - install_kafka

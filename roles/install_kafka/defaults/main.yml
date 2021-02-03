@@ -3,31 +3,38 @@
 java_version: "{{ '11' if ( kafka_version == '2.13-2.4.1')}}"
 java_packet: "java-{{java_version}}-openjdk-headless"
 
-zookeeper_version: "{{ '3.5.8' if ( kafka_version == '2.13-2.4.1')}}"
+zookeeper_version: "{{ '3.5.8' if ( kafka_version == '2.13-2.4.1' ) }}"
 zookeeper_package: "apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz"
+zookeeper_package_checksum: "{% 
+  if zookeeper_version == '3.5.8' %}sha256:c35ed6786d59b73920243f1a324d24c2ddfafb379041d7a350cc9a341c52caf3{%
+  endif %}"
 kafka_package: kafka_{{ kafka_version }}.tgz
-
+kafka_package_checksum: "{%
+  if kafka_version == '2.13-2.4.1' %}sha256:a7549b2333620c916ae47d444c9f104ba64be559c242b1cceb987d4dbd9d9c30{%
+  endif %}"
 
 app_dir: /app
 distributes_dir: "{{app_dir}}/distrib"
-zookeepr_data: "{{ app_dir }}/data/zookeeper"
+zookeeper_data: "{{ app_dir }}/data/zookeeper"
 zookeeper_log: "{{ app_dir }}/log/zookeeper"
 zookeeper_dir: "{{app_dir}}/zookeeper"
 kafka_var_log: "{{ app_dir }}/log/kafka"
 kafka_dir: "{{ app_dir }}/kafka"
 kafka_log_dirs: "{{ app_dir }}/data/kafka"
 kafka_lib_dir: "{{ kafka_dir }}/libs"
-app_dirs:
+app_dirs_zookeeper:
   - '{{ app_dir }}'
   - '{{ distributes_dir }}'
-  - '{{ zookeepr_data }}'
+  - '{{ zookeeper_data }}'
   - '{{ zookeeper_log }}'
   - '{{ zookeeper_dir }}'
+app_dirs_kafka:
+  - '{{ app_dir }}'
+  - '{{ distributes_dir }}'
   - '{{ kafka_var_log }}'
   - '{{ kafka_dir }}'
   - '{{ kafka_log_dirs }}'
   - '{{ kafka_lib_dir }}'
-
 
 app_user_group: kafka
 
@@ -54,5 +61,5 @@ consumer_offsets_replication_factor: 1
 transaction_state_log_replication_factor: 1
 kafka_ssl_enable: False
 cruisecontrol_enable: False
-zookeeper_instances: "{% for node in groups['kafka'] %}{{ node }}:{{ client_port | default('2181') }}{% if not loop.last %},{% endif %}{% endfor %}"
+zookeeper_instances: "{% for node in groups['zookeeper'] %}{{ node }}:{{ client_port | default('2181') }}{% if not loop.last %},{% endif %}{% endfor %}"
 kafka_instances: "{% for node in groups['kafka'] %}{{ node }}:{{kafka_listener_port}}{% if not loop.last %},{% endif %}{% endfor %}"
