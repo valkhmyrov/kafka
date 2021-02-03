@@ -1,4 +1,4 @@
-Inventory file must content two groups: [zookeeper] and [kafka]. In case of single node installation server must be member of two groups simultaneously.
+Inventory file must contain two groups: [zookeeper] and [kafka]. In case of single node installation server must be member of two groups simultaneously.
 
 
 How to start:
