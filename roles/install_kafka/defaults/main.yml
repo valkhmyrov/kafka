@@ -1,5 +1,8 @@
 ---
 
+bucket: "public-soft"
+download_url: "{{endpoint_url }}/{{ bucket }}"
+
 java_version: "{{ '11' if ( kafka_version == '2.13-2.4.1')}}"
 java_packet: "java-{{java_version}}-openjdk-headless"
 

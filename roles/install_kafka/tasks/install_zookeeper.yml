@@ -17,9 +17,9 @@
     owner: 'root'
     mode: 0644
 
-- name: Download dist
+- name: Downloading zookeeper
   get_url:
-    url: "https://archive.apache.org/dist/zookeeper/zookeeper-{{zookeeper_version}}/{{zookeeper_package}}"
+    url: "{{ download_url }}/zookeeper/{{ zookeeper_package }}"
     dest: "{{ distributes_dir }}"
     mode: '0755'
     checksum: "{{ zookeeper_package_checksum }}"
